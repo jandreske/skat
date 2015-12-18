@@ -19,6 +19,10 @@ public class Game {
         this.logger = logger;
     }
 
+    public GameParams getParams() {
+        return params;
+    }
+
     public void dealCards(List<Card> vorhand, List<Card> mittelhand, List<Card> hinterhand, List<Card> skat) {
         //todo verify numbers, no duplicates, etc
         params.forehand.dealCards(vorhand);
@@ -115,7 +119,7 @@ public class Game {
 
         //among all cards still in here, the one with the highest value wins
         Card winner = potentialWinners.get(0);
-        for (Card card : cards) {
+        for (Card card : potentialWinners) {
             if (card.getValue() > winner.getValue()) winner = card;
             //todo: make better
             if (card.cardType == CardType.JACK) {
@@ -192,5 +196,12 @@ public class Game {
             if (isValidPlay(trump, color, card, player)) allowedCards.add(card);
         }
         return allowedCards;
+    }
+
+    public List<Card> getAllowedPlays(Card firstCard, List<Card> cards) {
+        //todo: this is complicated and inefficient, change
+        Player player = new Player("");
+        player.dealCards(cards);
+        return getAllowedPlays(firstCard, player);
     }
 }
