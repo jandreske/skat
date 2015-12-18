@@ -1,8 +1,7 @@
 package model;
 
-
 public enum GameType {
-    REGULÄR,
+    REGULAR,
     GRAND,
     NULL
 }
