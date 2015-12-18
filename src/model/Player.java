@@ -57,4 +57,11 @@ public class Player {
         }
         return false;
     }
+
+    public boolean hasColorExcludeTrump(Color color, GameParams params) {
+        for (Card card : cards) {
+            if (card.color == color && !params.isTrump(card)) return true;
+        }
+        return false;
+    }
 }

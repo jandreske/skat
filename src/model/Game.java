@@ -43,6 +43,11 @@ public class Game {
         logger.log(player.name + " gets " + points + " for putting these cards to the skat: " + skat.get(0) + ", " + skat.get(1));
     }
 
+    public void playTrick(List<Card> cards) {
+        if (cards.size() != 3) throw new IllegalArgumentException("Invalid number of cards for one trick.");
+        playTrick(cards.get(0), cards.get(1), cards.get(2));
+    }
+
     public void playTrick(Card firstCard, Card secondCard, Card thirdCard) {
         //todo: check that changeskat was called before
         Player firstPlayer = playsNext;
@@ -73,14 +78,14 @@ public class Game {
         //todo: check whether game is over and who won
     }
 
-    private Player getWinningPlayer(Card winningCard) {
+    public Player getWinningPlayer(Card winningCard) {
         if (params.forehand.getCards().contains(winningCard)) return params.forehand;
         if (params.middlehand.getCards().contains(winningCard)) return params.middlehand;
         if (params.rearhand.getCards().contains(winningCard)) return params.rearhand;
         throw new RuntimeException("No player has the winning card, something went horribly wrong.");
     }
 
-    private Card getWinningCard(Card firstCard, Card secondCard, Card thirdCard) {
+    public Card getWinningCard(Card firstCard, Card secondCard, Card thirdCard) {
         List<Card> cards = new ArrayList<Card>();
         cards.add(firstCard);
         cards.add(secondCard);
@@ -101,7 +106,7 @@ public class Game {
                 if (params.isTrump(card)) potentialWinners.add(card);
             }
         } else {
-            //no trum involved, so we check which cards are of correct color
+            //no trump involved, so we check which cards are of correct color
             Color color = firstCard.color;
             for (Card card : cards) {
                 if (card.color == color) potentialWinners.add(card);
@@ -112,12 +117,17 @@ public class Game {
         Card winner = potentialWinners.get(0);
         for (Card card : cards) {
             if (card.getValue() > winner.getValue()) winner = card;
-            if (card.getValue() == winner.getValue()) {
-                //todo: make better
-                //this is for jacks, clubs over spades over hearts over diamonds
-                if (card.color == Color.CLUBS) winner = card;
-                if (card.color == Color.SPADES && winner.color != Color.CLUBS) winner = card;
-                if (card.color == Color.HEARTS && winner.color != Color.CLUBS && winner.color != Color.SPADES) winner = card;
+            //todo: make better
+            if (card.cardType == CardType.JACK) {
+                if (card.getValue() == winner.getValue()) {
+                    //this is for jacks, clubs over spades over hearts over diamonds
+                    if (card.color == Color.CLUBS) winner = card;
+                    if (card.color == Color.SPADES && winner.color != Color.CLUBS) winner = card;
+                    if (card.color == Color.HEARTS && winner.color != Color.CLUBS && winner.color != Color.SPADES)
+                        winner = card;
+                } else {
+                    winner = card;
+                }
             }
         }
 
@@ -132,13 +142,28 @@ public class Game {
     }
 
     private void checkValidPlay(boolean trump, Color color, Card card, Player player) {
-        //check that if trump was played, the card is either trump or the player has no trump
-        if (trump && !params.isTrump(card) && player.hasTrump(params)) {
-            throw new RuntimeException("Invalid player, player did not play trump although he could and had to");
-        }
-        if (color != card.color && player.hasColor(color)) {
+        if (!isValidPlay(trump, color, card, player)) {
             throw new RuntimeException("Invalid player, player did not play right color although he could");
         }
+    }
+
+    private boolean isValidPlay(boolean trump, Color color, Card card, Player player) {
+        //todo: this is ugly and unreadable as hell, mae better
+        //check that if trump was played, the card is either trump or the player has no trump
+        if (trump && !params.isTrump(card) && player.hasTrump(params)) {
+            return false;
+        }
+        if (trump && params.isTrump(card)) {
+            return true;
+        }
+        //if no trump was played, the card either needs to match color and be no trump, or the player has no non-trump cards in color
+        if (!trump && color == card.color && !params.isTrump(card)) {
+            return true;
+        }
+        if (!trump && !player.hasColorExcludeTrump(color, params)) {
+            return true;
+        }
+        return false;
     }
 
     private void checkHasCard(Player player, Card card) {
@@ -147,10 +172,25 @@ public class Game {
         }
     }
 
-    private Player getNextPlayer(Player player) {
+    public Player getNextPlayer(Player player) {
         if (player == params.forehand) return params.middlehand;
         if (player == params.middlehand) return params.rearhand;
         if (player == params.rearhand) return params.forehand;
         throw new IllegalArgumentException("model.Player not present in model.GameParams.");
+    }
+
+    public Player getPlaysNext() {
+        return playsNext;
+    }
+
+    public List<Card> getAllowedPlays(Card firstCard, Player player) {
+        //todo: this is not really efficient, but should work for now
+        boolean trump = params.isTrump(firstCard);
+        Color color = firstCard.color;
+        List<Card> allowedCards = new ArrayList<Card>();
+        for (Card card : player.getCards()) {
+            if (isValidPlay(trump, color, card, player)) allowedCards.add(card);
+        }
+        return allowedCards;
     }
 }

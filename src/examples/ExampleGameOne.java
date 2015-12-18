@@ -11,7 +11,7 @@ public class ExampleGameOne {
 
     public static void main(String[] args) {
         Logger logger = new Logger(true);
-        GameParams params = new GameParams(Color.CLUBS, GameType.REGULAR);
+        GameParams params = new GameParams(Color.HEARTS, GameType.REGULAR);
         params.forehand = new Player("Jochen");
         params.middlehand = new Player("Fred");
         params.rearhand = new Player("Lisa");
