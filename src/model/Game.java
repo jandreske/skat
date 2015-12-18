@@ -143,7 +143,7 @@ public class Game {
 
     private void checkValidPlay(boolean trump, Color color, Card card, Player player) {
         if (!isValidPlay(trump, color, card, player)) {
-            throw new RuntimeException("Invalid player, player did not play right color although he could");
+            throw new RuntimeException("Invalid play, player did not play right color although he could");
         }
     }
 
