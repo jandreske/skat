@@ -16,6 +16,10 @@ public class Player {
         this.singlePlayer = false;
     }
 
+    public int getPoints() {
+        return points;
+    }
+
     public void earnPoints(int points) {
         this.points += points;
     }

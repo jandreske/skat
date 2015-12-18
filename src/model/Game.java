@@ -120,7 +120,7 @@ public class Game {
         //among all cards still in here, the one with the highest value wins
         Card winner = potentialWinners.get(0);
         for (Card card : potentialWinners) {
-            if (card.getValue() > winner.getValue()) winner = card;
+            if (card.getValue() > winner.getValue() && winner.cardType != CardType.JACK) winner = card;
             //todo: make better
             if (card.cardType == CardType.JACK) {
                 if (card.getValue() == winner.getValue()) {
@@ -152,10 +152,10 @@ public class Game {
     }
 
     private boolean isValidPlay(boolean trump, Color color, Card card, Player player) {
-        //todo: this is ugly and unreadable as hell, mae better
+        //todo: this is ugly and unreadable as hell, make better
         //check that if trump was played, the card is either trump or the player has no trump
-        if (trump && !params.isTrump(card) && player.hasTrump(params)) {
-            return false;
+        if (trump && !params.isTrump(card)) {
+            return !player.hasTrump(params);
         }
         if (trump && params.isTrump(card)) {
             return true;
@@ -203,5 +203,16 @@ public class Game {
         Player player = new Player("");
         player.dealCards(cards);
         return getAllowedPlays(firstCard, player);
+    }
+
+    public void logStatus() {
+        logger.log("");
+        logger.log(tricksPlayed + " tricks played.");
+        Player single = null;
+        if (params.forehand.isSinglePlayer()) single = params.forehand;
+        if (params.middlehand.isSinglePlayer()) single = params.middlehand;
+        if (params.rearhand.isSinglePlayer()) single = params.rearhand;
+        if (single == null) throw new RuntimeException("No single player found.");
+        logger.log("Singleplayer " + single.name + " collected " + single.getPoints() + " points.");
     }
 }
