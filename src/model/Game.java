@@ -117,11 +117,11 @@ public class Game {
             }
         }
 
-        //among all cards still in here, the one with the highest value wins
+        //todo: sort this out - but beware, the current logic actually only applies to regular games where jacks are trump, always
+        //among all cards still in here, the one with the highest value wins, except that jacks are higher
         Card winner = potentialWinners.get(0);
         for (Card card : potentialWinners) {
             if (card.getValue() > winner.getValue() && winner.cardType != CardType.JACK) winner = card;
-            //todo: make better
             if (card.cardType == CardType.JACK) {
                 if (card.getValue() == winner.getValue()) {
                     //this is for jacks, clubs over spades over hearts over diamonds
@@ -152,22 +152,23 @@ public class Game {
     }
 
     private boolean isValidPlay(boolean trump, Color color, Card card, Player player) {
-        //todo: this is ugly and unreadable as hell, make better
-        //check that if trump was played, the card is either trump or the player has no trump
-        if (trump && !params.isTrump(card)) {
-            return !player.hasTrump(params);
-        }
-        if (trump && params.isTrump(card)) {
-            return true;
-        }
-        //if no trump was played, the card either needs to match color and be no trump, or the player has no non-trump cards in color
-        if (!trump && color == card.color && !params.isTrump(card)) {
-            return true;
-        }
-        if (!trump && !player.hasColorExcludeTrump(color, params)) {
-            return true;
-        }
-        return false;
+        //if trump was played, and the player also played trump, he is fine
+        if (trump && params.isTrump(card)) return true;
+        //if trump was played, and the card is no trump, but the player has trump, it is not valid
+        if (trump && !params.isTrump(card) && player.hasTrump(params)) return false;
+        //if trump was played, and the card is no trump, and the player has no trump, he is fine
+        if (trump && !params.isTrump(card) && !player.hasTrump(params)) return true;
+
+        //if no trump was played, and the player played a non-trump card in the right color, he is fine
+        if (!trump && color == card.color && !params.isTrump(card)) return true;
+        //if no trump was played, and the player has no non-trump card in the right color, he is fine whatever he played
+        if (!trump && !player.hasColorExcludeTrump(color, params)) return true;
+        //if no trump was played, and the player played a trump, and he has non-trump cards in the right color, it is invalid
+        if (!trump && params.isTrump(card) && player.hasColorExcludeTrump(color, params)) return false;
+        //if no trump was played, and the player played a card of wrong color, and he has non trump cards in the right color, it is invalid
+        if (!trump && color != card.color && player.hasColorExcludeTrump(color, params)) return false;
+        //if none of the above options was hit, I made a stupid mistake
+        throw new IllegalStateException("Bug in isValidPlay, no condition hit with trump: " + trump + ", color: " + color.name() + ", card: " + card);
     }
 
     private void checkHasCard(Player player, Card card) {

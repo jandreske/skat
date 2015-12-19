@@ -52,28 +52,32 @@ public class FullGameChecker {
 
     private GameStatus solve(GameStatus status, int alpha, int beta, int level) {
         int player = (status.playsNext + status.cardsPlayed.size()) % 3;
-        GameStatus alphaNode = status;
-        GameStatus betaNode = status;
+        GameStatus alphaNode = null;
+        GameStatus betaNode = null;
         List<Card> cards = status.playerCards.get(player);
         if (!status.cardsPlayed.isEmpty()) {
             //we have to check whats actually allowed
             cards = game.getAllowedPlays(status.cardsPlayed.get(0), cards);
         }
+        //if there are no more cards, we are done
+        if (cards.isEmpty()) return status;
+        //find the best card
         for (Card card : cards) {
             GameStatus newStatus = solve(status.play(player, card), alpha, beta, level + 1);
             if (player == singlePlayer) {
                 //we are a MAX node
-                if (newStatus.singlePlayerPoints > alpha) {
+                if (newStatus.singlePlayerPoints >= alpha || alphaNode == null) {
                     alpha = newStatus.singlePlayerPoints;
                     alphaNode = newStatus;
                 }
             } else {
                 //we are a MIN node
-                if (newStatus.singlePlayerPoints < beta) {
+                if (newStatus.singlePlayerPoints <= beta || betaNode == null) {
                     beta = newStatus.singlePlayerPoints;
                     betaNode = newStatus;
                 }
             }
+            //if the result will be discarded one level up because it is too good / bad anyway, then stop
             if (alpha >= beta) break;
         }
         if (player == singlePlayer) {
