@@ -1,6 +1,7 @@
 package smart;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CardUtils {
@@ -106,5 +107,17 @@ public class CardUtils {
             value >>= 1;
         }
         System.out.println();
+    }
+
+    public static List<Long> getAllCards(long cards) {
+        List<Long> result = new ArrayList<Long>();
+        long check = 1;
+        for (int i = 0; i < 32; i++) {
+            if ((check & cards) > 0) {
+                result.add(check);
+            }
+            check <<= 1;
+        }
+        return result;
     }
 }
