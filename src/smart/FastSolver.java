@@ -26,12 +26,13 @@ public class FastSolver {
         status.player0cards = player0Cards;
         status.player1cards = player1Cards;
         status.player2cards = player2Cards;
+        status.cardsPlayed = new long[3];
+        status.playedTricks = new ArrayList<Long>();
         GameStatus result = solve(status, Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
         return result.playedTricks;
     }
 
     private GameStatus solve(GameStatus status, int alpha, int beta, int level) {
-        if (_log) _stats.solveCall(level);
         int offset = 0;
         if (status.cardsPlayed[0] != 0) offset++;
         if (status.cardsPlayed[1] != 0) offset++;
@@ -48,13 +49,17 @@ public class FastSolver {
             //we have to check whats actually allowed
             cards = CardUtils.getAllowedCards(status.cardsPlayed[0], cards, trump);
         }
+
         //if there are no more cards, we are done
         if (cards == 0) {
             return status;
         }
 
+        //remove redundant cards seems to slow us down
+        //cards = filterCards(cards);
+
         //find the best card
-        if (level == 1) {
+        if (level < 0) { //todo
             ExecutorService executor = Executors.newFixedThreadPool(8);
             List<FutureTask<GameStatus>> taskList = new ArrayList<FutureTask<GameStatus>>();
             for (long card : CardUtils.getAllCards(cards)) {
@@ -82,7 +87,6 @@ public class FastSolver {
                     }
                     //if the result will be discarded one level up because it is too good / bad anyway, then stop
                     if (alpha >= beta) {
-                        if (_log) _stats.alphaBetaBreak(level);
                         break;
                     }
                 } catch (InterruptedException e) {
@@ -96,6 +100,10 @@ public class FastSolver {
             for (long card : CardUtils.getAllCards(cards)) {
                 GameStatus newStatus = status.play(player, card);
                 newStatus = solve(newStatus, alpha, beta, level + 1);
+
+//                if (level == 1) {
+//                    System.out.println(CardUtils.toString(card) + ": " + newStatus.singlePlayerPoints);
+//                }
 
                 if (player == singlePlayer) {
                     //we are a MAX node
@@ -130,6 +138,27 @@ public class FastSolver {
         }
     }
 
+    private long filterCards(long cards) {
+        if (!CardUtils.contains(cards, Cards.REDUNDANT_FILTER)) return cards;
+        if (CardUtils.contains(cards, Cards.DIAMONDS_EIGHT)) {
+            cards = CardUtils.removeCard(cards, Cards.DIAMONDS_SEVEN);
+            cards = CardUtils.removeCard(cards, Cards.DIAMONDS_NINE);
+        }
+        if (CardUtils.contains(cards, Cards.HEARTS_EIGHT)) {
+            cards = CardUtils.removeCard(cards, Cards.HEARTS_SEVEN);
+            cards = CardUtils.removeCard(cards, Cards.HEARTS_NINE);
+        }
+        if (CardUtils.contains(cards, Cards.SPADES_EIGHT)) {
+            cards = CardUtils.removeCard(cards, Cards.SPADES_SEVEN);
+            cards = CardUtils.removeCard(cards, Cards.SPADES_NINE);
+        }
+        if (CardUtils.contains(cards, Cards.CLUBS_EIGHT)) {
+            cards = CardUtils.removeCard(cards, Cards.CLUBS_SEVEN);
+            cards = CardUtils.removeCard(cards, Cards.CLUBS_NINE);
+        }
+        return cards;
+    }
+
     private class PlayTask implements Callable<GameStatus> {
 
         private final GameStatus _status;
@@ -162,8 +191,8 @@ public class FastSolver {
         public long player2cards;
         public int playsNext;
         public int singlePlayerPoints;
-        public List<Long> playedTricks = new ArrayList<Long>();
-        public long[] cardsPlayed = new long[3];
+        public List<Long> playedTricks;
+        public long[] cardsPlayed;
 
         public GameStatus play(int player, long card) {
             long start = System.currentTimeMillis();

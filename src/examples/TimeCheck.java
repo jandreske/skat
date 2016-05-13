@@ -16,7 +16,7 @@ public class TimeCheck {
     public static void main(String[] args) {
         Logger logger = new Logger(false);
 
-        for (int i = 1; i <= 7; i++) {
+        for (int i = 7; i <= 7; i++) {
 //            GameParams params = new GameParams(Color.CLUBS, GameType.REGULAR);
 //            params.forehand = new Player("Jochen");
 //            params.middlehand = new Player("Fred");
@@ -39,7 +39,7 @@ public class TimeCheck {
             long player2Cards = CardUtils.combineCards(lisasCardsSmart.subList(0, i));
 
             long start = System.currentTimeMillis();
-            FastSolver fastSolver = new FastSolver(false);
+            FastSolver fastSolver = new FastSolver(true);
             List<Long> fastTricks = fastSolver.calculateFullGame(0, trump, 0, 0, player0Cards, player1Cards, player2Cards);
             long elapsed = System.currentTimeMillis() - start;
             System.out.println(i + " cards - new:" + elapsed);

@@ -51,4 +51,6 @@ public class Cards {
     public static final long TEN_POINTS =       DIAMONDS_TEN | HEARTS_TEN | SPADES_TEN | CLUBS_TEN;
     public static final long ELEVEN_POINTS =    DIAMONDS_ACE | HEARTS_ACE | SPADES_ACE | CLUBS_ACE;
 
+    public static final long REDUNDANT_FILTER = DIAMONDS_EIGHT | SPADES_EIGHT | CLUBS_EIGHT | HEARTS_EIGHT;
+
 }

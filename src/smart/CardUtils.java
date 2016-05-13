@@ -120,4 +120,53 @@ public class CardUtils {
         }
         return result;
     }
+
+    public static void printCards(List<Long> cards) {
+        StringBuilder builder = new StringBuilder();
+        for (long card : cards) {
+            builder.append(toString(card)).append(", ");
+        }
+        System.out.println(builder.toString());
+    }
+
+    public static String toString(long card) {
+        if (card == Cards.DIAMONDS_SEVEN) return "DIAMONDS_SEVEN";
+        if (card == Cards.DIAMONDS_EIGHT) return "DIAMONDS_EIGHT";
+        if (card == Cards.DIAMONDS_NINE) return "DIAMONDS_NINE";
+        if (card == Cards.DIAMONDS_TEN) return "DIAMONDS_TEN";
+        if (card == Cards.DIAMONDS_JACK) return "DIAMONDS_JACK";
+        if (card == Cards.DIAMONDS_QUEEN) return "DIAMONDS_QUEEN";
+        if (card == Cards.DIAMONDS_KING) return "DIAMONDS_KING";
+        if (card == Cards.DIAMONDS_ACE) return "DIAMONDS_ACE";
+
+        if (card == Cards.HEARTS_SEVEN) return "HEARTS_SEVEN";
+        if (card == Cards.HEARTS_EIGHT) return "HEARTS_EIGHT";
+        if (card == Cards.HEARTS_NINE) return "HEARTS_NINE";
+        if (card == Cards.HEARTS_TEN) return "HEARTS_TEN";
+        if (card == Cards.HEARTS_JACK) return "HEARTS_JACK";
+        if (card == Cards.HEARTS_QUEEN) return "HEARTS_QUEEN";
+        if (card == Cards.HEARTS_KING) return "HEARTS_KING";
+        if (card == Cards.HEARTS_ACE) return "HEARTS_ACE";
+
+        if (card == Cards.SPADES_SEVEN) return "SPADES_SEVEN";
+        if (card == Cards.SPADES_EIGHT) return "SPADES_EIGHT";
+        if (card == Cards.SPADES_NINE) return "SPADES_NINE";
+        if (card == Cards.SPADES_TEN) return "SPADES_TEN";
+        if (card == Cards.SPADES_JACK) return "SPADES_JACK";
+        if (card == Cards.SPADES_QUEEN) return "SPADES_QUEEN";
+        if (card == Cards.SPADES_KING) return "SPADES_KING";
+        if (card == Cards.SPADES_ACE) return "SPADES_ACE";
+
+        if (card == Cards.CLUBS_SEVEN) return "CLUBS_SEVEN";
+        if (card == Cards.CLUBS_EIGHT) return "CLUBS_EIGHT";
+        if (card == Cards.CLUBS_NINE) return "CLUBS_NINE";
+        if (card == Cards.CLUBS_TEN) return "CLUBS_TEN";
+        if (card == Cards.CLUBS_JACK) return "CLUBS_JACK";
+        if (card == Cards.CLUBS_QUEEN) return "CLUBS_QUEEN";
+        if (card == Cards.CLUBS_KING) return "CLUBS_KING";
+        if (card == Cards.CLUBS_ACE) return "CLUBS_ACE";
+
+        if (card == 0) return "NONE";
+        return "MULTIPLE";
+    }
 }
